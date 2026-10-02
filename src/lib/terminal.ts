@@ -28,7 +28,12 @@ const HELP: readonly string[] = [
   '  sudo <anything>    you can try',
 ];
 
-const normalise = (value: string): string => value.trim().toLowerCase().replace(/^[#/~.]+/, '').replace(/\/+$/, '');
+const normalise = (value: string): string =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/^[#/~.]+/, '')
+    .replace(/\/+$/, '');
 
 export const runCommand = (input: string, ctx: TerminalContext, now: Date = new Date()): TerminalResult => {
   const [rawName = '', ...args] = input.trim().split(/\s+/);

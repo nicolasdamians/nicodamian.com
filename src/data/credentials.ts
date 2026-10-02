@@ -69,7 +69,14 @@ export const skills: readonly SkillGroup[] = [
   {
     id: 'netsec',
     label: 'Network security',
-    items: ['Firewall engineering', 'Remote access & VPN', 'IPsec / IKEv2', 'WireGuard', 'Zero Trust access', 'Load balancing'],
+    items: [
+      'Firewall engineering',
+      'Remote access & VPN',
+      'IPsec / IKEv2',
+      'WireGuard',
+      'Zero Trust access',
+      'Load balancing',
+    ],
   },
   {
     id: 'offsec',

@@ -98,7 +98,8 @@ const jsonLd = JSON.stringify({
           if (active) {
             link.setAttribute('aria-current', 'true');
             link.closest('ul')?.scrollTo({ left: link.offsetLeft - 16 });
-            if (index) index.textContent = `§ ${String(i + 1).padStart(2, '0')}/${String(links.length).padStart(2, '0')}`;
+            if (index)
+              index.textContent = `§ ${String(i + 1).padStart(2, '0')}/${String(links.length).padStart(2, '0')}`;
           } else {
             link.removeAttribute('aria-current');
           }

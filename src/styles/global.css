@@ -142,7 +142,11 @@
   }
   /* Terminal window used in the hero. */
   .hero-glow {
-    background: radial-gradient(60rem 30rem at 50% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
+    background: radial-gradient(
+      60rem 30rem at 50% -10%,
+      color-mix(in srgb, var(--accent) 9%, transparent),
+      transparent 70%
+    );
   }
   .term {
     border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));

@@ -26,10 +26,7 @@ export const RULES = [
   ['local path', /\b[A-Za-z]:[\\/]{1,2}(?:Users|yoweb)\b/g],
 ];
 
-const ALLOWED = [
-  /^153385003\+nicolasdamians@users\.noreply\.github\.com$/,
-  /^(fontProviders|leak-denylist)\.local$/,
-];
+const ALLOWED = [/^153385003\+nicolasdamians@users\.noreply\.github\.com$/, /^(fontProviders|leak-denylist)\.local$/];
 
 /** Extra literal terms from the git-ignored `.leak-denylist.local` (one per line, `#` comments). */
 export const denylistRules = (fileContent) =>

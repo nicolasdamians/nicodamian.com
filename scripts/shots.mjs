@@ -18,7 +18,9 @@ for (const [name, width, height, theme, full] of shots) {
   const page = await ctx.newPage();
   page.on('console', (m) => m.type() === 'error' && issues.push(`${name}: ${m.text()}`));
   page.on('pageerror', (e) => issues.push(`${name}: ${e.message}`));
-  page.on('request', (r) => { if (!r.url().startsWith(origin)) issues.push(`${name}: third-party ${r.url()}`); });
+  page.on('request', (r) => {
+    if (!r.url().startsWith(origin)) issues.push(`${name}: third-party ${r.url()}`);
+  });
   await page.goto(`${origin}/`, { waitUntil: 'networkidle' });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   if (overflow > 0) issues.push(`${name}: horizontal overflow ${overflow}px`);
@@ -28,9 +30,11 @@ for (const [name, width, height, theme, full] of shots) {
     await page.fill('#term-input', 'cat certs.txt');
     await page.keyboard.press('Enter');
     const text = await page.locator('[data-terminal-output]').innerText();
-    if (!text.includes('OSCP+') || !text.includes('navigation')) issues.push('terminal: commands did not print expected output');
+    if (!text.includes('OSCP+') || !text.includes('navigation'))
+      issues.push('terminal: commands did not print expected output');
     const mail = await page.locator('[data-mail] a').getAttribute('href');
-    if (!(await page.locator('#contact').innerText()).includes('print(email)')) issues.push('contact: info.py block missing');
+    if (!(await page.locator('#contact').innerText()).includes('print(email)'))
+      issues.push('contact: info.py block missing');
     if (!mail?.startsWith('mailto:')) issues.push('contact: email link not assembled');
   }
   await page.screenshot({ path: `${out}/${name}.png`, fullPage: full });
@@ -38,5 +42,9 @@ for (const [name, width, height, theme, full] of shots) {
 }
 await browser.close();
 await server.stop();
-console.log(issues.length ? issues.join('\n') : 'ok: no console errors, no CSP violations, no third-party requests, no overflow, terminal and email work');
+console.log(
+  issues.length
+    ? issues.join('\n')
+    : 'ok: no console errors, no CSP violations, no third-party requests, no overflow, terminal and email work',
+);
 process.exit(issues.length ? 1 : 0);

@@ -38,7 +38,11 @@ export default defineConfig({
       fallbacks: ['ui-monospace', 'monospace'],
       options: {
         variants: [
-          { src: [latin('jetbrains-mono', 'jetbrains-mono-latin-wght-normal.woff2')], weight: '100 800', style: 'normal' },
+          {
+            src: [latin('jetbrains-mono', 'jetbrains-mono-latin-wght-normal.woff2')],
+            weight: '100 800',
+            style: 'normal',
+          },
         ],
       },
     },

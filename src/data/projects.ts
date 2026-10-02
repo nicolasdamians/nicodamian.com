@@ -99,7 +99,8 @@ export const projects: readonly Project[] = [
     summary:
       'A Windows tray app for Claude Code that keeps session usage in view at all times and, more importantly, resumes sessions by itself when the limits reset. Credentials live in the OS keystore; 129 tests and ten languages.',
     stack: ['Rust', 'Tauri 2', 'TypeScript'],
-    credit: 'Inspired by a browser extension my brother wrote. I built the desktop version and gave it to him; it lives on as UsagePeek.',
+    credit:
+      'Inspired by a browser extension my brother wrote. I built the desktop version and gave it to him; it lives on as UsagePeek.',
     link: { label: 'usagepeek.com', href: 'https://usagepeek.com' },
   },
   {
@@ -135,8 +136,7 @@ export const projects: readonly Project[] = [
     kind: 'tool',
     featured: false,
     title: 'OSCP Obsidian Tracker',
-    summary:
-      'The templates, dashboard and methodology I used to prepare the OSCP, packaged as an Obsidian vault.',
+    summary: 'The templates, dashboard and methodology I used to prepare the OSCP, packaged as an Obsidian vault.',
     stack: ['Obsidian', 'Dataview', 'Markdown'],
     link: { label: 'GitHub', href: 'https://github.com/nicolasdamians/oscp-obsidian-tracker' },
   },

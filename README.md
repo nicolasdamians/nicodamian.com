@@ -14,17 +14,36 @@ npm run preview  # serve the built site
 npm test         # unit tests
 ```
 
+## Check it
+
+```sh
+npm run lint          # ESLint (TypeScript, Astro, accessibility rules)
+npm run format        # Prettier, writes; format:check only reports
+npm run test:dist     # tests over dist/: CSP hashes, no foreign origins, sitemap, robots.txt
+npm run e2e           # Playwright and axe against the built site
+npm run lighthouse    # mobile and desktop, fails below 95 in any category
+npm run verify        # format:check, lint, test, build, test:dist, e2e
+```
+
+`test:dist`, `e2e` and `lighthouse` read `dist/`, so build first. The browser checks need `npx playwright install chromium` once. Lighthouse skips its `robots-txt` audit: it fetches the file from inside the page, which the site's `connect-src 'none'` blocks; `test:dist` checks the file instead.
+
+## Deploy
+
+Pushing to `main` runs `.github/workflows/deploy.yml`: one job runs `npm run verify` and Lighthouse, and uploads that same `dist/`, which a second job publishes to GitHub Pages. Pull requests run the same checks without deploying (`ci.yml`).
+
+One-time setup in the repository settings: Pages → Source → GitHub Actions, and the custom domain `nicodamian.com` with HTTPS enforced. The domain is set there, not through a `CNAME` file, because Actions deployments ignore that file.
+
 ## Edit the content
 
 All text lives in `src/data/`. Nothing else needs to change for a content update.
 
-| File | What it holds |
-| --- | --- |
-| `profile.ts` | Name, tagline, about, origin story, hero facts |
-| `experience.ts` | Roles and education |
+| File             | What it holds                                      |
+| ---------------- | -------------------------------------------------- |
+| `profile.ts`     | Name, tagline, about, origin story, hero facts     |
+| `experience.ts`  | Roles and education                                |
 | `credentials.ts` | Certifications (in order of importance) and skills |
-| `projects.ts` | Project cards |
-| `beyond.ts` | Interests and contact channels |
+| `projects.ts`    | Project cards                                      |
+| `beyond.ts`      | Interests and contact channels                     |
 
 Wrap anything still unconfirmed in `todo('…')`. It renders as a visible marker, `npm run todos` lists it, and `STRICT_CONTENT=1 npm run todos` fails if any remain.
 
