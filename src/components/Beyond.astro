@@ -1,0 +1,31 @@
+---
+import { Bike, Dumbbell, HeartHandshake, Music, Sailboat, Wrench } from '@lucide/astro';
+import Section from './Section.astro';
+import { beyond } from '@/data/beyond';
+
+const icons: Record<string, typeof Bike> = {
+  'two-wheels': Bike,
+  sport: Dumbbell,
+  water: Sailboat,
+  music: Music,
+  family: HeartHandshake,
+  tinkering: Wrench,
+};
+---
+
+<Section id="beyond" title="Beyond work" lead={beyond.intro}>
+  <ul class="grid gap-px border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+    {
+      beyond.interests.map((interest) => {
+        const Icon = icons[interest.id] ?? Wrench;
+        return (
+          <li class="reveal bg-bg p-6">
+            <Icon size={22} class="text-accent" />
+            <h3 class="mt-4 font-semibold">{interest.label}</h3>
+            <p class="mt-1 text-muted">{interest.blurb}</p>
+          </li>
+        );
+      })
+    }
+  </ul>
+</Section>

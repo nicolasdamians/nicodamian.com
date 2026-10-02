@@ -1,0 +1,43 @@
+---
+import Section from './Section.astro';
+import { contact } from '@/data/beyond';
+import { profile } from '@/data/profile';
+
+const { user, domain } = contact.email;
+---
+
+<Section
+  id="contact"
+  title="Get in touch"
+  lead="For work, a second opinion on a design, or to tell me something on this page is wrong."
+>
+  <div class="sheet reveal max-w-[46rem]">
+    <p class="label border-b border-line px-4 py-2.5"><span class="text-accent">$</span> cat info.py</p>
+    <!-- Real Python, as on the first version of this site. The address only exists in pieces. -->
+    <div class="overflow-x-auto px-4 py-4 font-mono text-sm leading-7">
+      <p><span class="text-faint"># contact details</span></p>
+      <p>nick = <span class="py-str">'{profile.handle}'</span></p>
+      <p>
+        email = <span class="py-str">'{user}'</span> + <span class="py-str">'@'</span> +
+        <span class="py-str">'{domain}'</span>
+      </p>
+      {
+        contact.channels.map((channel) => (
+          <p>
+            {channel.id} ={' '}
+            <a href={channel.href} rel="noopener noreferrer me" class="py-str link">
+              '{channel.href}'
+            </a>
+          </p>
+        ))
+      }
+      <p class="mt-4"><span class="text-accent">print</span>(email)</p>
+      <p class="text-faint">
+        <span aria-hidden="true">&gt;&gt;&gt; </span>
+        <span data-mail data-u={user} data-d={domain}>
+          {user} [at] {domain.replace('.', ' [dot] ')}
+        </span>
+      </p>
+    </div>
+  </div>
+</Section>

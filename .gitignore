@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.env*
+*.log
+test-results/
+playwright-report/
+.leak-denylist.local
+screenshots/

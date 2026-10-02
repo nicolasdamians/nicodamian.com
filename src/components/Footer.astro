@@ -1,0 +1,20 @@
+---
+import { site } from '@/data/site';
+import { profile } from '@/data/profile';
+
+const sha = import.meta.env.GITHUB_SHA ?? 'dev';
+const built = new Date().toISOString().slice(0, 10);
+---
+
+<footer class="border-t border-line">
+  <div
+    class="mx-auto flex max-w-[70rem] flex-col gap-2 px-5 py-8 font-mono text-xs text-faint md:flex-row md:items-center md:justify-between md:px-8 lg:px-12"
+  >
+    <p>© {new Date().getFullYear()} {profile.name}</p>
+    <p>
+      built from <span class="text-muted">{sha.slice(0, 7)}</span> · {built} ·
+      <a href={site.repoUrl} rel="noopener noreferrer" class="link">source</a> ·
+      <a href="/.well-known/security.txt" class="link">security.txt</a>
+    </p>
+  </div>
+</footer>

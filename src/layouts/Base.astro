@@ -1,0 +1,198 @@
+---
+import { Font } from 'astro:assets';
+import '@/styles/global.css';
+import { site } from '@/data/site';
+import { profile } from '@/data/profile';
+import StatusLine from '@/components/StatusLine.astro';
+import Footer from '@/components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title = site.title, description = site.description, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+
+// JSON-LD is a data block, not a script the CSP has to hash. No email or address on purpose.
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  alternateName: profile.handle,
+  url: site.url,
+  jobTitle: profile.role,
+  worksFor: { '@type': 'Organization', name: profile.employer },
+  address: { '@type': 'PostalAddress', addressLocality: 'Zurich', addressCountry: 'CH' },
+  sameAs: ['https://www.linkedin.com/in/nicolas-damian-sadofschi/', 'https://github.com/nicolasdamians'],
+}).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script is:inline src="/theme-init.js"></script>
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-jetbrains-mono" preload />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#070b10" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline type="application/ld+json" set:html={jsonLd} />
+  </head>
+  <body class="min-h-dvh antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:text-on-accent"
+    >
+      Skip to content
+    </a>
+    <StatusLine />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import { runCommand, type TerminalContext } from '@/lib/terminal';
+
+      // Theme toggle: dark by default, the choice is remembered.
+      const root = document.documentElement;
+      const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+      const syncToggle = () => toggle?.setAttribute('aria-pressed', String(root.dataset.theme === 'light'));
+      syncToggle();
+      const switchTheme = () => {
+        const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+        root.dataset.theme = next;
+        try {
+          localStorage.setItem('theme', next);
+        } catch {
+          // Storage can be unavailable (private mode); the toggle still works for this page view.
+        }
+        syncToggle();
+      };
+      toggle?.addEventListener('click', switchTheme);
+
+      // Scrollspy: mark the section in view in the status line.
+      const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+      const index = document.querySelector<HTMLElement>('[data-nav-index]');
+      const sections = links
+        .map((link) => document.getElementById(link.hash.slice(1)))
+        .filter((el): el is HTMLElement => el !== null);
+      const setActive = (id: string) => {
+        links.forEach((link, i) => {
+          const active = link.hash === `#${id}`;
+          if (active) {
+            link.setAttribute('aria-current', 'true');
+            link.closest('ul')?.scrollTo({ left: link.offsetLeft - 16 });
+            if (index) index.textContent = `§ ${String(i + 1).padStart(2, '0')}/${String(links.length).padStart(2, '0')}`;
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      };
+      const spy = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) if (entry.isIntersecting) setActive(entry.target.id);
+          // The last section can be too short to cross the middle of a tall viewport.
+          const last = sections.at(-1);
+          const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+          if (last && atBottom) setActive(last.id);
+        },
+        { rootMargin: '-45% 0px -50% 0px' },
+      );
+      sections.forEach((section) => spy.observe(section));
+      // Observing the hero clears the marker when the visitor scrolls back to the top.
+      const hero = document.getElementById('top');
+      if (hero) spy.observe(hero);
+
+      // One reveal per block. The class is armed here, so content stays visible if this script never runs.
+      root.classList.add('reveal-on');
+      const reveal = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add('is-in');
+            reveal.unobserve(entry.target);
+          }
+        },
+        { rootMargin: '0px 0px -10% 0px' },
+      );
+      document.querySelectorAll('.reveal').forEach((el) => reveal.observe(el));
+
+      // Hero terminal: a real, tiny command interpreter. Output is always written as text, never as HTML.
+      const terminal = document.querySelector<HTMLElement>('[data-terminal]');
+      const form = terminal?.querySelector<HTMLFormElement>('[data-terminal-form]');
+      const input = terminal?.querySelector<HTMLInputElement>('[data-terminal-input]');
+      const output = terminal?.querySelector<HTMLElement>('[data-terminal-output]');
+      if (terminal && form && input && output) {
+        const context = JSON.parse(terminal.dataset.context ?? '{}') as TerminalContext;
+        const history: string[] = [];
+        let cursor = 0;
+        const print = (text: string, className = '') => {
+          const line = document.createElement('p');
+          line.textContent = text;
+          if (className) line.className = className;
+          output.append(line);
+        };
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const command = input.value;
+          input.value = '';
+          if (command.trim()) history.push(command);
+          cursor = history.length;
+          print(`$ ${command}`, 'term-echo');
+          const result = runCommand(command, context);
+          result.lines.forEach((line) => print(line));
+          if (result.effect?.type === 'clear') output.replaceChildren();
+          if (result.effect?.type === 'theme') switchTheme();
+          if (result.effect?.type === 'goto') {
+            const target = document.getElementById(result.effect.section);
+            if (target) {
+              // Move keyboard focus with the viewport so the next Tab continues from the section.
+              target.tabIndex = -1;
+              target.scrollIntoView();
+              target.focus({ preventScroll: true });
+            }
+          }
+          // Keep the transcript short so the hero never grows without bound.
+          while (output.childElementCount > 40) output.firstElementChild?.remove();
+        });
+        input.addEventListener('keydown', (event) => {
+          if ((event.key !== 'ArrowUp' && event.key !== 'ArrowDown') || history.length === 0) return;
+          event.preventDefault();
+          cursor = Math.max(0, Math.min(history.length, cursor + (event.key === 'ArrowUp' ? -1 : 1)));
+          input.value = history[cursor] ?? '';
+        });
+        terminal.addEventListener('click', (event) => {
+          if (window.getSelection()?.toString() === '' && event.target !== input) input.focus({ preventScroll: true });
+        });
+      }
+
+      // Email is stored in pieces and only assembled in the browser.
+      document.querySelectorAll<HTMLElement>('[data-mail]').forEach((el) => {
+        const { u, d } = el.dataset;
+        if (!u || !d) return;
+        const address = `${u}@${d}`;
+        const link = document.createElement('a');
+        link.href = `mailto:${address}`;
+        link.textContent = address;
+        link.className = 'link';
+        el.replaceChildren(link);
+      });
+    </script>
+  </body>
+</html>

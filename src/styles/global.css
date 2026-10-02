@@ -1,0 +1,273 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-warn: var(--warn);
+}
+
+/* Dark is the default; light overrides below. Contrast ratios are checked in src/lib/contrast.test.ts. */
+:root {
+  color-scheme: dark;
+  --bg: #070b10;
+  --surface: #0d131a;
+  --fg: #e6eaee;
+  --muted: #9aa6b2;
+  --faint: #7d8a97;
+  --accent: #4fe3d1;
+  --on-accent: #04110f;
+  --line: #1d2731;
+  --line-strong: #5b6875;
+  --warn: #f5b83d;
+  --rule: 1.5rem;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f6f3;
+  --surface: #ffffff;
+  --fg: #12171c;
+  --muted: #46505a;
+  --faint: #5f6a75;
+  --accent: #006b5e;
+  --on-accent: #ffffff;
+  --line: #d7dbd6;
+  --line-strong: #7b858e;
+  --warn: #8a5200;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: var(--rule);
+    font-feature-settings: 'ss01', 'cv11';
+    text-rendering: optimizeLegibility;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  a {
+    text-underline-offset: 0.2em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Mono uppercase caption used for section indexes and field names. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  /* A framed "sheet": the datasheet building block. */
+  .sheet {
+    border: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+  /* Corner ticks for the featured credential frame. */
+  .ticks {
+    position: relative;
+    border: 1px solid var(--accent);
+  }
+  .ticks::before,
+  .ticks::after {
+    content: '';
+    position: absolute;
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 2px solid var(--accent);
+  }
+  .ticks::before {
+    top: -4px;
+    left: -4px;
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .ticks::after {
+    bottom: -4px;
+    right: -4px;
+    border-left: 0;
+    border-top: 0;
+  }
+  /* Terminal window used in the hero. */
+  .hero-glow {
+    background: radial-gradient(60rem 30rem at 50% -10%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
+  }
+  .term {
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+    background: var(--surface);
+    box-shadow: 0 0 2.5rem -1rem color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--fg) 4%, var(--surface));
+  }
+  .term-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+  }
+  .term-body {
+    padding: 1.25rem 1rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+  }
+  @media (min-width: 48rem) {
+    .term-body {
+      padding: 1.75rem 2rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+  .term-name {
+    font-family: var(--font-mono);
+    font-size: clamp(1.375rem, 0.9rem + 2.2vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .term-prompt:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+  [data-terminal-input]:focus-visible {
+    outline: none;
+  }
+  .term-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    min-height: 2.75rem;
+  }
+  [data-terminal-output] p {
+    white-space: pre-wrap;
+  }
+  .term-echo {
+    color: var(--faint);
+  }
+  .btn-primary,
+  .btn-ghost {
+    display: inline-flex;
+    height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      box-shadow 200ms,
+      border-color 200ms,
+      color 200ms;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: 0 0 1.5rem -0.5rem var(--accent);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 2rem -0.25rem var(--accent);
+  }
+  .btn-ghost {
+    border: 1px solid var(--line-strong);
+    color: var(--fg);
+  }
+  .btn-ghost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .stat {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .py-str {
+    color: var(--accent);
+  }
+  .todo {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--warn);
+    border: 1px dashed var(--warn);
+    padding: 0 0.375rem;
+  }
+  /* One reveal per section, opacity and 8px only; disabled without JS and under reduced motion. */
+  .reveal-on .reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 400ms cubic-bezier(0.2, 0, 0, 1),
+      transform 400ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .reveal-on .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+  @media print, (prefers-reduced-motion: reduce) {
+    .reveal-on .reveal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

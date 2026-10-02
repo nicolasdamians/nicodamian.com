@@ -1,0 +1,12 @@
+---
+// Renders a content string, or a visible marker when the owner still has to supply it.
+import { isTodo } from '@/lib/todo';
+
+interface Props {
+  value: string;
+}
+
+const { value } = Astro.props;
+---
+
+{isTodo(value) ? <span class="todo">{value}</span> : value}

@@ -1,0 +1,43 @@
+---
+import { SunMoon } from '@lucide/astro';
+import { site } from '@/data/site';
+import { profile } from '@/data/profile';
+
+const total = String(site.nav.length).padStart(2, '0');
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
+  <nav
+    aria-label="Sections"
+    class="mx-auto flex h-12 max-w-[70rem] items-center gap-4 px-5 font-mono text-[0.8125rem] md:px-8 lg:px-12"
+  >
+    <a href="/#top" class="shrink-0 font-medium text-fg no-underline hover:text-accent">
+      {profile.handle}<span class="text-accent">@</span>zrh
+    </a>
+    <span data-nav-index class="hidden shrink-0 text-faint tabular-nums sm:inline">§ 00/{total}</span>
+    <ul class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 md:justify-end">
+      {
+        site.nav.map((item) => (
+          <li>
+            <a
+              data-nav-link
+              href={`/#${item.id}`}
+              class="block px-2 py-3 whitespace-nowrap text-muted no-underline hover:text-fg aria-[current]:text-accent aria-[current]:underline"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <button
+      type="button"
+      data-theme-toggle
+      aria-pressed="false"
+      class="grid size-11 shrink-0 place-items-center text-muted hover:text-accent"
+    >
+      <SunMoon size={18} />
+      <span class="sr-only">Use light theme</span>
+    </button>
+  </nav>
+</header>
